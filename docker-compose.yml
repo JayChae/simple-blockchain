@@ -1,0 +1,29 @@
+services:
+  node1:
+    build: .
+    ports:
+      - "3001:3001"
+      - "6001:6001"
+    environment:
+      - HTTP_PORT=3001
+      - P2P_PORT=6001
+
+  node2:
+    build: .
+    ports:
+      - "3002:3001"
+      - "6002:6001"
+    environment:
+      - HTTP_PORT=3001
+      - P2P_PORT=6001
+      - PEERS=ws://node1:6001
+
+  node3:
+    build: .
+    ports:
+      - "3003:3001"
+      - "6003:6001"
+    environment:
+      - HTTP_PORT=3001
+      - P2P_PORT=6001
+      - PEERS=ws://node1:6001,ws://node2:6001
