@@ -66,12 +66,70 @@ interface Block {
 
 한 곳(서버)에만 데이터를 저장하지 않고, 여러 위치(노드, 서버)에 분산해서 저장·관리하는 데이터베이스.
 
-## 블록 체인 Flow
+
+## Architecture
+
+### BlockChain
+![chain](./docs/chain.png)
+
+### Connection
+
+![connection](./docs/connect.png)
 
 
-### 1. node 3개인 상황
+## [블록 체인 Flow](./docs/flow.md)
 
+### 1. 블록 생성 및 전파 FLOW
 
+#### 1.1 node1과 node2 연결된 상황
+
+![1](./docs/1.1.png)
+
+#### 1.2 node1에서 블록 생성 후 전파
+
+![1](./docs/1.2.png)
+
+#### 1.3 node2에서 블록 받은 후 체인에 추가
+
+![1](./docs/1.3.png)
+
+### 2. 새로운 노드 연결 FLOW
+
+#### 2.1 node3 node2 연결하고 최신 블록 요청
+
+![1](./docs/2.1.png)
+
+#### 2.2 받은 블록의 index가 클 경우 전체 체인 요청
+
+![1](./docs/2.2.png)
+
+#### 2.3 받은 블록체인이 자신보다 길고 유효한지 검사 후 체인 교체
+
+![1](./docs/2.3.png)
+
+### 3. 충돌 상황(Fork)
+
+#### 3.1 같은 index의 블록이 동시에 생성된 상황
+
+![1](./docs/3.1.png)
+
+#### 3.2 node1의 index4 블록을 받은 node2는 아무것도 하지 않는다.
+
+![1](./docs/3.2.png)
+
+#### 3.3 node3이 새로운 블록을 생성하여 node2가 받고 node1에게 전달, node1은 바로 체인에 추가할 수 있는 블록이 아니기 때문에 전체 체인 요청
+
+![1](./docs/3.3.png)
+
+#### 3.4 node1은 node2에게 전체 체인 요청을 받고 더 긴 체인을 선택
+
+![1](./docs/3.4.png)
+
+node1이 생성한 블록 4는 소실된다. 이러한 블록을 고아 블록이라고 한다. 비트코인의 경우 고아 블록 안에 들어 있던 트랜잭션은 다시 미확인 거래 풀(memPool)로 돌아가 이후에 처리 된다.
+
+#### 3.5 결과
+
+![1](./docs/3.5.png)
 
 ## 블록체인 핵심 기능 구현
 
@@ -295,50 +353,144 @@ initHttpServer(): void {
 }
 ```
 
+## 실행
 
+### 1. Docker로 실행하기 (권장)
 
-## 빠른 시작
+Docker Compose를 사용하면 3개의 노드로 구성된 블록체인 네트워크를 쉽게 실행할 수 있습니다.
 
-(두 개의 연결된 노드를 설정하고 1개 블록 채굴)
+#### 사전 준비
 
+- Docker 및 Docker Compose 설치 필요
+
+#### Docker 네트워크 구성
+
+- **Node 1**: HTTP 포트 3001, P2P 포트 6001
+- **Node 2**: HTTP 포트 3002, P2P 포트 6002 (Node 1에 자동 연결)
+- **Node 3**: HTTP 포트 3003, P2P 포트 6003 (Node 2에 자동 연결)
+
+#### 실행 단계
+
+1. **프로젝트 클론 및 이동**
+
+```bash
+git clone <repository-url>
+cd simple-blockchain
 ```
+
+2. **Docker Compose로 네트워크 시작**
+
+```bash
+docker-compose up --build
+```
+
+3. **웹 대시보드 접속**
+
+![simple-blockchain](./docs/simple-blockchain.PNG)
+
+- Node 1: http://localhost:3001
+- Node 2: http://localhost:3002
+- Node 3: http://localhost:3003
+
+각 노드의 대시보드에서 다음을 확인할 수 있습니다:
+
+- 현재 블록체인 상태
+- 연결된 피어 목록
+- 새 블록 생성 기능
+- 피어 추가 기능
+
+### 2. 로컬에서 직접 실행하기
+
+#### 실행 단계
+
+1. **의존성 설치**
+
+```bash
 npm install
+```
+
+2. **TypeScript 컴파일**
+
+```bash
+npm run build
+```
+
+3. **노드 실행 (각각 새로운 터미널에서)**
+
+**방법 1: npm 스크립트 사용 (권장)**
+
+```bash
+# 터미널 1 - 첫 번째 노드
+npm run node1
+
+# 터미널 2 - 두 번째 노드
+npm run node2
+
+# 터미널 3 - 세 번째 노드
+npm run node3
+```
+
+**방법 2: 환경 변수 직접 설정**
+
+```bash
+# 터미널 1
 HTTP_PORT=3001 P2P_PORT=6001 npm start
+
+# 터미널 2
 HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 npm start
-curl -H "Content-type:application/json" --data '{"data" : "첫 번째 블록의 데이터"}' http://localhost:3001/mineBlock
+
+# 터미널 3
+HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6002 npm start
 ```
 
-### Docker로 빠른 시작
+### API 엔드포인트
 
-(세 개의 연결된 노드를 설정하고 블록 채굴)
+각 노드는 다음 HTTP API를 제공합니다:
 
-```sh
-docker-compose up
-curl -H "Content-type:application/json" --data '{"data" : "첫 번째 블록의 데이터"}' http://localhost:3001/mineBlock
-```
+#### 블록체인 조회
 
-### HTTP API
-
-##### 블록체인 조회
-
-```
+```bash
+GET /blocks
+# 현재 블록체인의 모든 블록 반환
 curl http://localhost:3001/blocks
 ```
 
-##### 블록 생성
+#### 새 블록 생성 (마이닝)
 
-```
-curl -H "Content-type:application/json" --data '{"data" : "첫 번째 블록의 데이터"}' http://localhost:3001/mineBlock
+```bash
+POST /mineBlock
+Content-Type: application/json
+
+{
+  "data": "블록에 저장할 데이터"
+}
+
+# 예시
+curl -X POST http://localhost:3001/mineBlock \
+  -H "Content-Type: application/json" \
+  -d '{"data": "Hello Blockchain!"}'
 ```
 
-##### 피어 추가
+#### 연결된 피어 조회
 
-```
-curl -H "Content-type:application/json" --data '{"peer" : "ws://localhost:6001"}' http://localhost:3001/addPeer
-```
-
-##### 연결된 피어 조회
-
-```
+```bash
+GET /peers
+# 현재 연결된 피어 목록 반환
 curl http://localhost:3001/peers
+```
+
+#### 새 피어 추가
+
+```bash
+POST /addPeer
+Content-Type: application/json
+
+{
+  "peer": "ws://호스트:포트"
+}
+
+# 예시
+curl -X POST http://localhost:3001/addPeer \
+  -H "Content-Type: application/json" \
+  -d '{"peer": "ws://localhost:6003"}'
 ```
