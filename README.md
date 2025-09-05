@@ -62,19 +62,15 @@ interface Block {
 
 각 블록이 이전 블록의 해시값을 포함하고 있기 때문에, 마치 **사슬(체인)**처럼 끊어지지 않고 연결된다.
 
+![chain](./docs/chain.png)
+
 ### 분산형 데이터베이스
 
 한 곳(서버)에만 데이터를 저장하지 않고, 여러 위치(노드, 서버)에 분산해서 저장·관리하는 데이터베이스.
 
-
 ## Architecture
 
-### BlockChain
-![chain](./docs/chain.png)
-
-### Connection
-
-![connection](./docs/connect.png)
+![chain](./docs/blockchainNode.png)
 
 
 ## [블록 체인 Flow](./docs/flow.md)
