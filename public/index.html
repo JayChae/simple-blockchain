@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Blockchain</title>
+  </head>
+  <body>
+    <h1>Simple Blockchain</h1>
+
+    <h2>Blocks</h2>
+    <div id="blocks">Loading...</div>
+
+    <h2>Peers</h2>
+    <div id="peers">Loading...</div>
+
+    <h2>Mine New Block</h2>
+    <form id="mineForm">
+      <label>Block Data:</label><br />
+      <input
+        type="text"
+        id="blockData"
+        placeholder="Enter block data"
+        required
+      /><br /><br />
+      <button type="submit">Mine Block</button>
+    </form>
+
+    <script>
+      // Load blocks
+      fetch("/blocks")
+        .then((response) => response.json())
+        .then((blocks) => {
+          document.getElementById("blocks").innerHTML = blocks
+            .map(
+              (block) =>
+                "<div><strong>Block #" +
+                block.index +
+                "</strong><br>" +
+                "Hash: " +
+                block.hash +
+                "<br>" +
+                "Previous Hash: " +
+                block.previousHash +
+                "<br>" +
+                "Timestamp: " +
+                new Date(block.timestamp).toLocaleString() +
+                "<br>" +
+                "Data: " +
+                block.data +
+                "<br><br></div>"
+            )
+            .join("");
+        })
+        .catch(
+          (err) =>
+            (document.getElementById("blocks").innerHTML =
+              "Error loading blocks")
+        );
+
+      // Load peers
+      fetch("/peers")
+        .then((response) => response.json())
+        .then((peers) => {
+          document.getElementById("peers").innerHTML =
+            peers.length > 0
+              ? peers.map((peer) => "<div>" + peer + "</div>").join("")
+              : "<div>No peers connected</div>";
+        })
+        .catch(
+          (err) =>
+            (document.getElementById("peers").innerHTML = "Error loading peers")
+        );
+
+      // Handle mine block form
+      document
+        .getElementById("mineForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const blockData = document.getElementById("blockData").value;
+
+          fetch("/mineBlock", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data: blockData }),
+          })
+            .then((response) => response.text())
+            .then((result) => {
+              alert("Block mined successfully!");
+              location.reload(); // Reload page to show new block
+            })
+            .catch((err) => alert("Error mining block: " + err));
+        });
+    </script>
+  </body>
+</html>

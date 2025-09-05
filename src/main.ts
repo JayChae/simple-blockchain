@@ -71,7 +71,10 @@ class BlockchainNode {
 
   public initP2PServer(): void {
     const server = new WebSocket.Server({ port: P2P_PORT });
-    server.on("connection", (ws: WebSocket) => this.initConnection(ws));
+    server.on("connection", (ws: WebSocket) => {
+      console.log("connected", ws);
+      this.initConnection(ws);
+    });
     console.log("listening websocket p2p port on: " + P2P_PORT);
   }
 
@@ -282,6 +285,6 @@ class BlockchainNode {
 
 // 애플리케이션 시작
 const node = new BlockchainNode();
-node.connectToPeers(INITIAL_PEERS);
 node.initHttpServer();
 node.initP2PServer();
+node.connectToPeers(INITIAL_PEERS);

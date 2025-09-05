@@ -18,6 +18,9 @@ services:
       - P2P_PORT=6001
       - PEERS=ws://node1:6001
 
+    depends_on:
+      - node1
+
   node3:
     build: .
     ports:
@@ -26,4 +29,6 @@ services:
     environment:
       - HTTP_PORT=3001
       - P2P_PORT=6001
-      - PEERS=ws://node1:6001,ws://node2:6001
+      - PEERS=ws://node2:6001
+    depends_on:
+      - node2
