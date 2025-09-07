@@ -462,9 +462,7 @@ Content-Type: application/json
 }
 
 # 예시
-curl -X POST http://localhost:3001/mineBlock \
-  -H "Content-Type: application/json" \
-  -d '{"data": "Hello Blockchain!"}'
+curl -H "Content-type:application/json" --data '{"data" : "Some data to the first block"}' http://localhost:3001/mineBlock
 ```
 
 #### 연결된 피어 조회
@@ -486,7 +484,5 @@ Content-Type: application/json
 }
 
 # 예시
-curl -X POST http://localhost:3001/addPeer \
-  -H "Content-Type: application/json" \
-  -d '{"peer": "ws://localhost:6003"}'
+curl -H "Content-type:application/json" --data '{"peer" : "ws://localhost:6001"}' http://localhost:3001/addPeer
 ```
