@@ -4,18 +4,17 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
+    "prestart": "npm run build",
     "start": "node dist/main.js",
-    "dev": "ts-node src/main.ts",
-    "node1": "cross-env HTTP_PORT=3001 P2P_PORT=6001 ts-node src/main.ts",
-    "node2": "cross-env HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 ts-node src/main.ts",
-    "node3": "cross-env HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6002 ts-node src/main.ts"
+    "node1": "cross-env HTTP_PORT=3001 P2P_PORT=6001 npm start",
+    "node2": "cross-env HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 npm start",
+    "node3": "cross-env HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6002 npm start"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
     "@types/ws": "^8.18.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
